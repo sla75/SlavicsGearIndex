@@ -27,6 +27,7 @@ VERSION=${VERSION}.${BUILD}
 echo "    GIT Build=${OLDBUILD}"
 echo "Version Build=${OLDBUILD}"
 if[[ ${BUILD} -ne ${OLDBUILD} ]]; then
+    # https://www.freeformatter.com/xpath-tester.html#before-output
     #xml=$(echo -e "cd /studentFile/student[studentName='CLASSA']/studentActions/studentAction[studentType='Juniour']/studentStatus\nset failed\nsave -" | xmllint --shell <(echo "$xml"))
 BUILD=$((BUILD+1))
 
