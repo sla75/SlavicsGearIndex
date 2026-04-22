@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+CURRENT_VERSION=1
+
 set -e # halt on error
 
 echo_and_exec() {
@@ -18,70 +20,69 @@ APP_TEST_ID="c4755d9c-e9e1-4924-b458-04e708ce9999"
 APP_PROD_ID="c4755d9c-e9e1-4924-b458-04e708ce0000"
 
 SYSTEM="Test"
-
 # Branch name
 BRANCH=$(git rev-parse --abbrev-ref HEAD)
 [[ "${BRANCH}" == "main" ]] && SYSTEM="";
 
-BUILD=$(git rev-list HEAD --count)
+# Revert change on version
+#git checkout -- resources/strings/strings.xml manifest.xml
+
+#BUILD=$(git rev-list HEAD --count)
+# Commits this month
+COMMITS=$(git rev-list --count --since="$(date +'%+4Y-%m-01')" --all)
+BUILD=${CURRENT_VERSION}"."$(date +'%+y%m')"."${COMMITS}${SYSTEM}
 VERSION=$(xmllint --xpath "//strings/string[@id='version']/text()" resources/strings/strings.xml)
-OLDBUILD="${VERSION##*.}"
-VERSION=${VERSION%.*}
-VERSION=${VERSION}.${BUILD}
-echo "    GIT Build=${OLDBUILD}"
-echo "Version Build=${OLDBUILD}"
-if[[ ${BUILD} -ne ${OLDBUILD} ]]; then
-    xmllint --shell resources/strings/strings.xml << EOF
-cd /strings/string[@id="version"]/
-set $(date +"%T")
-save
-EOF
-echo "Status=$?"
-cat resources/strings/strings.xml
+echo "  Version=${VERSION}"
+echo "GIT Build=${BUILD}"
+
+#OLDBUILD="${VERSION##*.}"
+#VERSION=${VERSION%.*}
+#VERSION=${VERSION}.${BUILD}
+#echo "    GIT Build=${OLDBUILD}"
+#echo "Version Build=${OLDBUILD}"
+if [[ "${VERSION}" != "${BUILD}" ]]; then
+    echo "Set version=${BUILD}"
+    echo -e "cd /strings/string[@id=\"version\"]\nset ${BUILD}\nsave" | xmllint --shell resources/strings/strings.xml
+fi
+#xmllint --xpath "//strings/string[@id='version']/text()" resources/strings/strings.xml
 
 
-<iq:manifest>
-    <iq:application id="c4755d9c-e9e1-4924-b458-04e708ce0000" type="datafield" name="@Strings.AppName" entry="SlavicsRearGearSimpleApp" launcherIcon="@Drawables.LauncherIcon" minApiLevel="3.1.0">
+APP_ID=$(echo -e "setns iq=http://www.garmin.com/xml/connectiq\ncat //iq:manifest/iq:application/@id" | xmllint --shell manifest.xml | grep -v ">" | cut -f 2 -d "=" | tr -d \");
+#echo -e "\n1. APP_ID=${APP_ID}"
 
-xmllint --xpath "/iq:manifest/iq:application/@id/@value" manifest.xml | echo "status=$?"
+if [ ${SYSTEM} == "Test" ]; then
+    if [ ${APP_ID} != ${APP_TEST_ID} ]; then
+        echo "Write APP_TEST_ID=${APP_TEST_ID}"
+        echo -e "setns iq=http://www.garmin.com/xml/connectiq\ncd //iq:manifest/iq:application/@id\nset ${APP_TEST_ID}\nsave\nbye" | xmllint --shell manifest.xml | grep -v ">"
+    fi
+else
+    if [ ${APP_ID} != ${APP_PROD_ID} ]; then
+        echo "Write APP_PROD_ID=${APP_PROD_ID}"
+        echo -e "setns iq=http://www.garmin.com/xml/connectiq\ncd //iq:manifest/iq:application/@id\nset ${APP_TEST_ID}\nsave\nbye" | xmllint --shell manifest.xml | grep -v ">"
+    fi
 fi
 
 
-BUILD=$((BUILD+1))
+#echo -ne "2. APP_ID="
+#echo -e "setns iq=http://www.garmin.com/xml/connectiq\ncat //iq:manifest/iq:application/@id" | xmllint --shell manifest.xml | grep -v ">" | cut -f 2 -d "=" | tr -d \"
 
-git add .
-git commit -m "Build version ${VERSION}"
+#git add .
+#git commit -m "Build version ${VERSION}"
 
 #BUILD=$(git rev-list --count --all)
 
-
-VERSION=$(xmllint --xpath "//strings/string[@id='version']/text()" resources/strings/strings.xml)
-echo "1. Version=${VERSION}"
-OLDBUILD="${VERSION##*.}"
-VERSION=${VERSION%.*}
-echo "2. Version=${VERSION}"
-VERSION=${VERSION}.${BUILD}
-echo "3. Version=${VERSION}"
-
-
-
-
-
-
-exit 0
-
-echo -e "\nGenerate ${PROJECT_NAME}${SYSTEM}.${BUILD}..."
-DEV_KEY="${HOME}/.Garmin/ConnectIQ/keys/developer_key_test.der"
+echo -e "\nGenerate ${PROJECT_NAME}-${BUILD}..."
+DEV_KEY="${HOME}/.Garmin/ConnectIQ/developer_key.der"
 echo_and_exec java -Xms1g -"Dfile.encoding=UTF-8" -"Dapple.awt.UIElement=true"    \
     -jar "${SDK}"bin/monkeybrains.jar \
-    --output "bin/${PROJECT_NAME}${SYSTEM}.${BUILD}.iq"    \
+    --output "bin/${PROJECT_NAME}-${BUILD}.iq"    \
     --jungles "monkey.jungle" \
     --private-key ${DEV_KEY}    \
     --package-app --release --warn
-echo -e "Generated bin/${PROJECT_NAME}${SYSTEM}.${BUILD}.iq"
+echo -e "Generated bin/${PROJECT_NAME}-${BUILD}.iq"
 
 DEVICE=${1:-edge1050}
-OUTPUT_FILE="bin/${PROJECT_NAME}${SYSTEM}.${BUILD}_${DEVICE}.prg"
+OUTPUT_FILE="bin/${PROJECT_NAME}-${BUILD}_${DEVICE}.prg"
 
 #if [[ $1 == "" ]]; then
 #    >&2 echo Usage: ciq-release.sh [device]
