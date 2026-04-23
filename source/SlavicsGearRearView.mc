@@ -5,97 +5,86 @@ import Toybox.Math;
 import Toybox.System;
 import Toybox.WatchUi;
 
-class SlavicsGearRearView extends WatchUi.DataField {
-    private const LABELHEIGHT=0.25f as Numeric;
-    private const FONTS=[
-            Graphics.FONT_NUMBER_THAI_HOT,
-            Graphics.FONT_NUMBER_HOT,
-            Graphics.FONT_NUMBER_MEDIUM,
-            Graphics.FONT_NUMBER_MILD,
-            Graphics.FONT_LARGE,
-            Graphics.FONT_MEDIUM,
-            Graphics.FONT_SMALL,
-            Graphics.FONT_TINY,
-            Graphics.FONT_XTINY,
-        ] as Array<Graphics.FontType>;
+class SlavicsGearRearView extends SlavicsSimpleDataField {
 
-    private var labelArea=null as TextArea;
-    private var valueArea=null as TextArea;
-    private var top=0 as Number;
+    private var teethsLabel=new Text({
+            :color=>Graphics.COLOR_DK_GRAY,
+            :font=>Graphics.FONT_SMALL,
+            :justification=>Graphics.TEXT_JUSTIFY_LEFT,
+        });
+        private var unitTeeths as String;
 
     function initialize() {
-        DataField.initialize();
-        
+        System.println("SlavicsGearRearView.initialize()");
+        SlavicsSimpleDataField.initialize();
+        unitTeeths=Application.loadResource(Rez.Strings.unitTeeths);
     }
 
     function onLayout(dc as Dc) as Void {
-        System.println("SpeedFieldView.onLayout()");
-        top=dc.getHeight()*0.025f;
-        top=0;
-        labelArea = new WatchUi.TextArea({
-            :text=>"Label",
-            :color=>Graphics.COLOR_DK_GRAY,
-            :font=>FONTS.slice(4,null),
-            :justification => Graphics.TEXT_JUSTIFY_CENTER|Graphics.TEXT_JUSTIFY_VCENTER,
-            :locX =>top,
-            :locY=>top,
-            :width=>dc.getWidth()-2*top,
-            :height=>dc.getHeight()*LABELHEIGHT-top,
-        });
-        valueArea = new WatchUi.TextArea({
-            :text=>"88.8",
-            :color=>Graphics.COLOR_DK_BLUE,
-            :font=>FONTS,
-            :justification => Graphics.TEXT_JUSTIFY_CENTER|Graphics.TEXT_JUSTIFY_VCENTER,
-            :locX =>top,
-            :locY=>dc.getHeight()*LABELHEIGHT,
-            :width=>dc.getWidth()-2*top,
-            :height=>dc.getHeight()*(1-LABELHEIGHT)-top
-        });
-
+        System.println("SlavicsGearRearView.onLayout() "+dc.getWidth()+"x"+dc.getHeight());
+        SlavicsSimpleDataField.onLayout(dc);
+        teethsLabel.locX=self.rim;
+        teethsLabel.locY=self.labelLine;
     }
-
+    /***/
     function onShow() {
-        System.println("SpeedFieldView.onShow()");
-        
-        
+        System.println("SlavicsGearRearView.onShow()");
+        SlavicsSimpleDataField.onShow();
+        self.setTextLabel(Application.loadResource(Rez.Strings.label));
     }
-    public function setLabel(text as String){
-        labelArea.setText(text);
-    }
-    public function setValue(text as String or Null){
-        valueArea.setText(text!=null?text:"--");
-    }
+    /***/
+    (:release)
     function compute(info as Activity.Info) as Void {
-        System.println("SpeedFieldView.compute(info)");
-        valueArea.setText((System.getClockTime().sec/3f).format("%0.1f"));
+        SlavicsSimpleDataField.compute(info);
+        var bsds=bikeShift.getDeviceState() as AntPlus.DeviceState;
+        if(bsds!=null&&bsds.state!=null){
+            switch(bsds.state){
+                case AntPlus.DEVICE_STATE_SEARCHING:
+                    self.setTextLabel(System.getClockTime().sec%2==0?"."+self.textLabel+".":".."+self.textLabel+"..");
+                    break;
+                case AntPlus.DEVICE_STATE_TRACKING:
+                    self.setTextLabel(self.textLabel);
+                    break;
+                default:
+                    self.setTextLabel("?"+self.textLabel+"?");
+            }
+        }
+
+        var ss=bikeShift.getShiftingStatus() as AntPlus.ShiftingStatus;
+        if(ss!=null){
+                if(ss.rearDerailleur.gearIndex!=AntPlus.REAR_GEAR_INVALID){    
+                    setTextValue((ss.rearDerailleur.gearIndex+1).toString());
+                    teethsLabel.setText(ss.rearDerailleur.gearSize+unitTeeths);
+                } else {
+                    setTextValue("Inv.");
+                    teethsLabel.setText("--"+unitTeeths);
+                }
+        } else {
+            teethsLabel.setText("--");
+            setTextValue("--");
+        }
+    }
+
+    (:debug)
+    function compute(info as Activity.Info) as Void {
+        SlavicsSimpleDataField.compute(info);
+        if(System.getClockTime().sec/15%2==0){
+            System.println("SlavicsGearRearView.compute(info)");
+            self.setTextValue(info.currentSpeed!=null?(info.currentSpeed*3.6f).format("%0.1f")+"km/h":"--km/h");
+            teethsLabel.setText("--");
+        } else {
+            System.println("SlavicsGearRearView.compute(debug)");
+            self.setTextValue((System.getClockTime().sec/3f).format("%0.1f")+"d");
+            teethsLabel.setText(Math.rand()%51+unitTeeths);
+        }
     }
 
     // Display the value you computed here. This will be called
     // once a second when the data field is visible.
     
     public function onUpdate(dc as Dc) as Void {
-        System.println("SpeedFieldView.onUpdate()");
-        dc.setColor(Graphics.COLOR_TRANSPARENT, System.getDeviceSettings().isNightModeEnabled?Graphics.COLOR_BLACK:Graphics.COLOR_WHITE);
-        dc.clear();
-        valueArea.draw(dc);
-        labelArea.draw(dc);
-        onUpdateAfter(dc);
+        System.println("SlavicsGearRearView.onUpdate()");
+        SlavicsSimpleDataField.onUpdate(dc);
+        teethsLabel.draw(dc);
     }
-    (:release)
-    private function onUpdateAfter(dc as Dc) as Void {
-    }
-    (:debug)
-    private function onUpdateAfter(dc as Dc) as Void {
-        System.println("SpeedFieldView.onUpdate()");
-        dc.setColor(Graphics.COLOR_TRANSPARENT, System.getDeviceSettings().isNightModeEnabled?Graphics.COLOR_BLACK:Graphics.COLOR_WHITE);
-        dc.clear();
-        valueArea.draw(dc);
-        labelArea.draw(dc);
-
-        dc.setColor(Graphics.COLOR_LT_GRAY,Graphics.COLOR_TRANSPARENT);
-        dc.drawRectangle(top,top,dc.getWidth()-2*top,dc.getHeight()*LABELHEIGHT-top);
-        dc.drawRectangle(top,dc.getHeight()*LABELHEIGHT,dc.getWidth()-2*top,dc.getHeight()*(1-LABELHEIGHT)-top);
-    }
-
 }
