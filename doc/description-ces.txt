@@ -9,7 +9,6 @@ Podporovaná zařízení Edge: 540, 840, 550, 850, 1040, 1050, MTB, Explore2
 
 Děkuji Petr
 
-sla75@seznam.cz
 https://github.com/sla75/SlavicsRearGearIndexSimple/issues
 
 Zobrazení:

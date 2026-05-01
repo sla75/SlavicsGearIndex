@@ -2,7 +2,7 @@
 
     <properties>
         <property id="property_version" type="string">0.0.0</property>
-        <property id="property_showteeth" type="boolean">false</property>
+        <property id="property_showteeth" type="boolean">true</property>
     </properties>
 
     <settings>
