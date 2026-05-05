@@ -18,6 +18,14 @@ class SlavicsGearIndexView extends SlavicsSimpleDataField {
             :font=>Graphics.FONT_SMALL,
             :justification=>Graphics.TEXT_JUSTIFY_LEFT,
         });
+    private var failLabel=new Text({
+            :text=>"fail",
+            :color=>Graphics.COLOR_DK_RED,
+            :font=>Graphics.FONT_SMALL,
+            :justification=>Graphics.TEXT_JUSTIFY_LEFT,
+        });
+    private var oldFailLabel="" as String;
+    private var failTime=3 as Number;
     private var unitTeeths as String;
     private var label as String;
     private var lastIndex=-1 as Number;
@@ -39,7 +47,8 @@ class SlavicsGearIndexView extends SlavicsSimpleDataField {
         SlavicsSimpleDataField.onLayout(dc);
         teethsLabel.locX=self.rim;
         teethsLabel.locY=self.labelLine;
-
+        failLabel.locX=rim;
+        failLabel.locY=dc.getHeight()-Graphics.getFontAscent(Graphics.FONT_SMALL)-rim;
         /***
         System.println("PartNumber: "+System.getDeviceSettings().partNumber);
         System.println("Screen: "+dc.getWidth()+"x"+dc.getHeight());
@@ -107,6 +116,24 @@ class SlavicsGearIndexView extends SlavicsSimpleDataField {
             setTextValue("xx");
             lastIndex=-2;
         }
+
+        var fl=rds.invalidInboardShiftCount+"/"+rds.invalidOutboardShiftCount+"/"+rds.shiftFailureCount;
+        System.println("FAIL fl="+fl+" ft="+failTime);
+        if(!fl.equals(oldFailLabel)){
+            System.println("FAIL ol="+oldFailLabel+" ft="+failTime);
+            failLabel.setText(fl);
+            failLabel.setVisible(true);
+            failTime=3;
+            oldFailLabel=fl;
+        } else if(failTime>=0){
+            System.println("FAIL failTime="+failTime);
+            if(failTime>0){
+                failTime--;
+            } else {
+                failLabel.setVisible(false);
+            }
+        }
+
     }
     var battIcon=new BatteryIcon({:font=>WatchUi.loadResource(Rez.Fonts.BatterySmall),:justification=>Graphics.TEXT_JUSTIFY_RIGHT});
     var battFontS=Graphics.FONT_TINY;
@@ -114,6 +141,7 @@ class SlavicsGearIndexView extends SlavicsSimpleDataField {
     public function onUpdate(dc as Dc) as Void {
         System.println("SlavicsGearRearView.onUpdate()");
         SlavicsSimpleDataField.onUpdate(dc);
+        failLabel.draw(dc);
         teethsLabel.draw(dc);
         //var FBT=WatchUi.loadResource(Rez.Fonts.BatterySmall);
         //b.setFont(FBT);

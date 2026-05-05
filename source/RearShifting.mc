@@ -73,9 +73,12 @@ class RearShifting {
                 rearDerailleur.gearIndex=System.getClockTime().sec/3%DEBUG_TEETHS.size();
                 rearDerailleur.gearMax=DEBUG_TEETHS.size();
                 rearDerailleur.gearSize=DEBUG_TEETHS[rearDerailleur.gearIndex];
-                rearDerailleur.invalidInboardShiftCount=Math.rand()%255;
-                rearDerailleur.invalidOutboardShiftCount=Math.rand()%255;
-                rearDerailleur.shiftFailureCount=Math.rand()%255;
+                rearDerailleur.invalidInboardShiftCount=rearDerailleur.invalidInboardShiftCount==null?0:rearDerailleur.invalidInboardShiftCount;
+                rearDerailleur.invalidOutboardShiftCount=rearDerailleur.invalidOutboardShiftCount==null?0:rearDerailleur.invalidOutboardShiftCount;
+                rearDerailleur.shiftFailureCount=rearDerailleur.shiftFailureCount==null?0:rearDerailleur.shiftFailureCount;
+                rearDerailleur.invalidInboardShiftCount+=Math.rand()%50==1?1:0;
+                rearDerailleur.invalidOutboardShiftCount+=Math.rand()%50==1?1:0;
+                rearDerailleur.shiftFailureCount+=Math.rand()%50==1?1:0;
             }
             //System.println("SlavicsGearRearView DEBUG gearIndex="+rearDerailleur.gearIndex);
             return rearDerailleur;
