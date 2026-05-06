@@ -9,7 +9,7 @@ echo_and_exec() {
     "$@"
 }
 
-rm -rf bin/
+rm -rvf bin/
 
 SDK="$(cat "${HOME}/.Garmin/ConnectIQ/current-sdk.cfg")"
 # edit the following line to point to your developer key
@@ -52,7 +52,7 @@ fi
 APP_ID=$(echo -e "setns iq=http://www.garmin.com/xml/connectiq\ncat //iq:manifest/iq:application/@id" | xmllint --shell manifest.xml | grep -v ">" | cut -f 2 -d "=" | tr -d \");
 #echo -e "\n1. APP_ID=${APP_ID}"
 
-if [ ${SYSTEM} == "Test" ]; then
+if [ "${SYSTEM}" == "Test" ]; then
     if [ ${APP_ID} != ${APP_TEST_ID} ]; then
         echo "Write APP_TEST_ID=${APP_TEST_ID}"
         echo -e "setns iq=http://www.garmin.com/xml/connectiq\ncd //iq:manifest/iq:application/@id\nset ${APP_TEST_ID}\nsave\nbye" | xmllint --shell manifest.xml | grep -v ">"
@@ -64,7 +64,7 @@ else
     fi
 fi
 echo "Set AppName=${PROJECT_NAME}${SYSTEM}"
-#echo -e "cd //strings/string[@id=\"AppName\"]\nset ${PROJECT_NAME}${SYSTEM}\nsave\nbye" | xmllint --shell resources/strings/strings.xml | grep -v ">"
+echo -e "cd //strings/string[@id=\"AppName\"]\nset ${PROJECT_NAME}${SYSTEM}\nsave\nbye" | xmllint --shell resources/strings/strings.xml
 
 #echo -ne "2. APP_ID="
 #echo -e "setns iq=http://www.garmin.com/xml/connectiq\ncat //iq:manifest/iq:application/@id" | xmllint --shell manifest.xml | grep -v ">" | cut -f 2 -d "=" | tr -d \"
