@@ -140,7 +140,9 @@ class SlavicsGearIndexView extends SlavicsSimpleDataField {
     public function onUpdate(dc as Dc) as Void {
         System.println("SlavicsGearRearView.onUpdate()");
         SlavicsSimpleDataField.onUpdate(dc);
-        failLabel.draw(dc);
+        if(Properties.getValue("property_showfailure") as Boolean){
+            failLabel.draw(dc);
+        }
         teethsLabel.draw(dc);
         //var FBT=WatchUi.loadResource(Rez.Fonts.BatterySmall);
         //b.setFont(FBT);

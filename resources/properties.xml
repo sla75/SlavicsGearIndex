@@ -5,6 +5,7 @@
         <property id="property_showteeth" type="boolean">true</property>
         <property id="property_nightMode" type="boolean">false</property>
         <property id="property_colorMode" type="number">0</property>
+        <property id="property_showfailure" type="boolean">false</property>
     </properties>
 
     <settings>
@@ -24,6 +25,9 @@
                 <listEntry value="2">Green</listEntry>
                 <listEntry value="3">Pink</listEntry>
             </settingConfig>
+        </setting>
+        <setting propertyKey="@Properties.property_showfailure" title="@Strings.property_showfailure_title">
+            <settingConfig type="boolean" required="true" />
         </setting>
     </settings>
 </resources>
