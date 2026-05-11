@@ -93,7 +93,7 @@ class RearShifting {
         for(var i=0;i<ids.size();i++){
             var id=ids[i];
             var bs=new BatteryStatus();
-            bs.batteryStatus=BATTERY_STATUSES[(1+Math.rand()%7)];
+            bs.batteryStatus=BATTERY_STATUSES[(1+System.getClockTime().sec%8)];
             bs.batteryVoltage=System.getClockTime().sec/7f;
             bs.operatingTime=System.getClockTime().min*60+System.getClockTime().sec;
             if(bs has :batteryStatus && bs!=null){
