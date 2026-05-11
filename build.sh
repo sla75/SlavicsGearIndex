@@ -36,7 +36,7 @@ COMMITS=$(git rev-list --count --since="$(date +'%+4Y-%m-01')" --all)
 if [ -z ${SYSTEM} ];  then
     BUILD=${CURRENT_VERSION}"."$(date +'%+y%m')"."$(git rev-list --count --since="$(date +'%+4Y-%m-01')" --all)
 else 
-    BUILD=${CURRENT_VERSION}".${BRANCH}."$(git rev-list --no-merges --count HEAD ^${BRANCH})
+    BUILD=${CURRENT_VERSION}".${BRANCH}."$(git rev-list --no-merges --count HEAD --branches=${BRANCH})
     echo "BUILD=${BUILD}"
 fi;
 
