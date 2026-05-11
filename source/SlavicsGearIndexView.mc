@@ -182,6 +182,7 @@ class SlavicsGearIndexView extends SlavicsSimpleDataField {
             var bLocX=dc.getWidth()-rim;
             var bLocY=dc.getHeight()-rim-Graphics.getFontHeight(battIcon.getFont());
             battIcon.locY=dc.getHeight()-rim-Graphics.getFontAscent(battIcon.getFont());
+            battIcon.setNightMode(System.getDeviceSettings().isNightModeEnabled);
             for(var i=0;i<batteries.size();i++){
                 var bd=(batteries as Array<RearShifting.BatteryData>)[i] as RearShifting.BatteryData;
                 // Vertically
@@ -189,7 +190,7 @@ class SlavicsGearIndexView extends SlavicsSimpleDataField {
 
                     battIcon.locX=bLocX;
                     battIcon.locY=bLocY;
-                    battIcon.compute(bd.get(:batteryStatus),false);
+                    battIcon.compute(bd.get(:batteryStatus),System.getClockTime().min%2==0);
                     battIcon.draw(dc);
 
                     dc.setColor(colorMode.getFieldColor(:label),Graphics.COLOR_TRANSPARENT);
@@ -201,9 +202,9 @@ class SlavicsGearIndexView extends SlavicsSimpleDataField {
                     bLocY-=Graphics.getFontHeight(battIcon.getFont())+3;
                 }
             }
-            /***/
+            /***
             bLocX=rim+5;
-            var tt="01234567";
+            var tt="0123456";
             var bFont=WatchUi.loadResource(Rez.Fonts.BatteryMedium);
             var bM=dc.getTextDimensions(tt,bFont);
 
@@ -213,13 +214,56 @@ class SlavicsGearIndexView extends SlavicsSimpleDataField {
             dc.drawLine(bLocX-3,bLocY+Graphics.getFontAscent(bFont),bLocX+bM[0]+3,bLocY+Graphics.getFontAscent(bFont));
             dc.drawLine(bLocX-3,bLocY+Graphics.getFontHeight(bFont),bLocX+bM[0]+3,bLocY+Graphics.getFontHeight(bFont));
 
-            dc.setColor(Graphics.COLOR_LT_GRAY,Graphics.COLOR_DK_GRAY);
-            dc.drawText(bLocX,bLocY,bFont,"00000000",Graphics.TEXT_JUSTIFY_LEFT);
+            dc.setColor(Graphics.COLOR_BLACK,Graphics.COLOR_LT_GRAY);
+            dc.drawText(bLocX,bLocY,bFont,"BBBBBBB",Graphics.TEXT_JUSTIFY_LEFT);
+            dc.setColor(Graphics.COLOR_WHITE,Graphics.COLOR_TRANSPARENT);
+            dc.drawText(bLocX,bLocY,bFont,"FFFFFFF",Graphics.TEXT_JUSTIFY_LEFT);
             dc.setColor(Graphics.COLOR_DK_GREEN,Graphics.COLOR_TRANSPARENT);
             dc.drawText(bLocX,bLocY,bFont,tt,Graphics.TEXT_JUSTIFY_LEFT);
 
-            bLocX+=bM[0]+1;
-            bM=dc.getTextDimensions(tt,Graphics.FONT_MEDIUM);
+            bLocX+=bM[0]+20;
+            battIcon.locX=bLocX;
+            battIcon.locY=bLocY;
+            battIcon.compute(AntPlus.BATT_STATUS_NEW,true);
+            battIcon.draw(dc);
+
+            bLocX+=dc.getTextDimensions("0",bFont)[0];
+            battIcon.locX=bLocX;
+            battIcon.compute(AntPlus.BATT_STATUS_NEW,false);
+            battIcon.draw(dc);
+
+            bLocX+=dc.getTextDimensions("0",bFont)[0];
+            battIcon.locX=bLocX;
+            battIcon.compute(AntPlus.BATT_STATUS_GOOD,false);
+            battIcon.draw(dc);
+
+            bLocX+=dc.getTextDimensions("0",bFont)[0];
+            battIcon.locX=bLocX;
+            battIcon.compute(AntPlus.BATT_STATUS_OK,false);
+            battIcon.draw(dc);
+
+            bLocX+=dc.getTextDimensions("0",bFont)[0];
+            battIcon.locX=bLocX;
+            battIcon.compute(AntPlus.BATT_STATUS_LOW,false);
+            battIcon.draw(dc);
+
+            bLocX+=dc.getTextDimensions("0",bFont)[0];
+            battIcon.locX=bLocX;
+            battIcon.compute(AntPlus.BATT_STATUS_CRITICAL,false);
+            battIcon.draw(dc);
+
+            bLocX+=dc.getTextDimensions("0",bFont)[0];
+            battIcon.locX=bLocX;
+            battIcon.compute(AntPlus.BATT_STATUS_INVALID,false);
+            battIcon.draw(dc);
+
+            bLocX+=dc.getTextDimensions("0",bFont)[0];
+            battIcon.locX=bLocX;
+            battIcon.compute(AntPlus.BATT_STATUS_CNT,false);
+            battIcon.draw(dc);
+
+            //bM=dc.getTextDimensions(tt,Graphics.FONT_MEDIUM);
+            /***
             dc.setColor(Graphics.COLOR_RED,Graphics.COLOR_TRANSPARENT);
             dc.drawLine(bLocX-3,bLocY,bLocX+bM[0]+3,bLocY);
             dc.drawLine(bLocX,bLocY-3,bLocX,bLocY+bM[1]+3);

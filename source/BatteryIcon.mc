@@ -6,6 +6,7 @@ import Toybox.WatchUi;
 class BatteryIcon extends Drawable {
     private var fontBattery=null as Graphics.FontType;
     private var charge=false as Boolean;
+    private var night=false as Boolean;
     private var justify as Graphics.TextJustification;
     private var status=AntPlus.BATT_STATUS_CNT as AntPlus.BatteryStatusValue;
     public function initialize(params as Dictionary){
@@ -14,7 +15,7 @@ class BatteryIcon extends Drawable {
         Drawable.initialize(params);
     }
 
-    public static const BATTERY_STATUS_COLOR = [0,Graphics.COLOR_DK_GREEN,Graphics.COLOR_DK_GREEN,Graphics.COLOR_DK_GREEN,Graphics.COLOR_ORANGE,Graphics.COLOR_RED,0,Graphics.COLOR_DK_GRAY,Graphics.COLOR_LT_GRAY] as Array<ColorType>;
+    public static const BATTERY_STATUS_COLOR = [0,Graphics.COLOR_DK_GREEN,Graphics.COLOR_DK_GREEN,Graphics.COLOR_DK_GREEN,Graphics.COLOR_ORANGE,Graphics.COLOR_RED,0,Graphics.COLOR_PINK,Graphics.COLOR_LT_GRAY,Graphics.COLOR_PURPLE] as Array<ColorType>;
     public static const BATTERY_STATUSES =[null,
                 AntPlus.BATT_STATUS_NEW,
                 AntPlus.BATT_STATUS_GOOD,
@@ -28,14 +29,14 @@ class BatteryIcon extends Drawable {
             ] as Array<BatteryStatusValue>;
     private static const BATCHAR={
             0=>"0",
-            AntPlus.BATT_STATUS_NEW=>"1",
-            AntPlus.BATT_STATUS_GOOD=>"2",
-            AntPlus.BATT_STATUS_OK=>"3",
-            AntPlus.BATT_STATUS_LOW=>"4",
-            AntPlus.BATT_STATUS_CRITICAL=>"5",
-            6=>"7",
-            AntPlus.BATT_STATUS_INVALID=>"6",
-            AntPlus.BATT_STATUS_CNT=>"6",
+            AntPlus.BATT_STATUS_NEW=>"0",
+            AntPlus.BATT_STATUS_GOOD=>"1",
+            AntPlus.BATT_STATUS_OK=>"2",
+            AntPlus.BATT_STATUS_LOW=>"3",
+            AntPlus.BATT_STATUS_CRITICAL=>"4",
+            6=>"5",
+            AntPlus.BATT_STATUS_INVALID=>"5",
+            AntPlus.BATT_STATUS_CNT=>"F",
         };
 
     public function setFont(font as Graphics.FontType) as Void{
@@ -51,20 +52,23 @@ class BatteryIcon extends Drawable {
         self.charge=charge;
         self.status=status;
     }
+    public function setNightMode(night as Boolean) as Void{
+        self.night=night;
+    }
     public function draw(dc as Dc) {
 
-        //Shadow
-        dc.setColor(Graphics.COLOR_LT_GRAY,Graphics.COLOR_TRANSPARENT);
-        dc.drawText(self.locX+1,self.locY-1,fontBattery,"0",self.justify);
-        dc.setColor(Graphics.COLOR_LT_GRAY,Graphics.COLOR_TRANSPARENT);
-        dc.drawText(self.locX-1,self.locY+1,fontBattery,"0",self.justify);
+        //Background
+        dc.setColor(night?Graphics.COLOR_WHITE:Graphics.COLOR_BLACK,Graphics.COLOR_TRANSPARENT);
+        dc.drawText(self.locX,self.locY,fontBattery,"B",self.justify);
+        dc.setColor(night?Graphics.COLOR_BLACK:Graphics.COLOR_WHITE,Graphics.COLOR_TRANSPARENT);
+        dc.drawText(self.locX,self.locY,fontBattery,"F",self.justify);
         
         // Own Battery Icon
         dc.setColor(BATTERY_STATUS_COLOR[status],Graphics.COLOR_TRANSPARENT);
         dc.drawText(self.locX,self.locY,fontBattery,BATCHAR.get(status),self.justify);
         if(charge){
             dc.setColor(Graphics.COLOR_RED,Graphics.COLOR_TRANSPARENT);
-            dc.drawText(self.locX,self.locY,fontBattery,"7",self.justify);
+            dc.drawText(self.locX,self.locY,fontBattery,"6",self.justify);
         }
     }
     
