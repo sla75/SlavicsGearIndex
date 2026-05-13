@@ -49,15 +49,20 @@ if [[ ${SYSTEM} == "Test" ]]; then
     APP_ID=$(echo -e "setns iq=http://www.garmin.com/xml/connectiq\ncat //iq:manifest/iq:application/@id" | xmllint --shell manifest.xml | grep -v ">" | cut -f 2 -d "=" | tr -d \");
     echo "Current Application@id=${APP_ID}"
     APP_ID_TEST=${APP_ID::-4}"9999"
-    echo "Write Application@id=${APP_ID_TEST}"
+    echo "  Write Application@id=${APP_ID_TEST}"
     echo -e "setns iq=http://www.garmin.com/xml/connectiq\ncd //iq:manifest/iq:application/@id\nset ${APP_ID_TEST}\nsave\nbye" | xmllint --shell manifest.xml | grep -v ">" 
+    GITCOUNT=$(git rev-list --count HEAD ^${BRANCH})
+else
+    # Main count of commits without merges
+    GITCOUNT=$(git rev-list --no-merges --count HEAD )
 fi;
+echo -ne "\n**********\n\nBUILD in branch '${BRANCH}' on ${GITCOUNT} commits.\n\n##########\n"
 
-echo "BUILD"
 
 if [[ ${SYSTEM} == "Test" ]]; then
-    echo "RESTORE manifest.xml"
-    echo_and_exec git restore manifest.xml
+    echo "RESTORE Application@id=${APP_ID} in manifest.xml"
+    git restore --staged manifest.xml
+    git restore manifest.xml
 fi
 
 
