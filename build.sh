@@ -49,8 +49,8 @@ if [[ ${SYSTEM} == "Test" ]]; then
     APP_ID_TEST=${APP_ID::-4}"9999"
     echo "  Write Application@id=${APP_ID_TEST}"
     echo -e "setns iq=http://www.garmin.com/xml/connectiq\ncd //iq:manifest/iq:application/@id\nset ${APP_ID_TEST}\nsave\nbye" | xmllint --shell manifest.xml | grep -v ">" 
-    GITCOUNT=$(git rev-list --count --first-parent main..${BRANCH})
-    #GITCOUNT=$(git rev-list --count HEAD)
+    #GITCOUNT=$(git rev-list --count --first-parent main..${BRANCH})
+    GITCOUNT=$(git rev-list --count main..${BRANCH})
 
     echo "Set AppName=${APP_NAME} ${SYSTEM}.${BRANCH}.${GITCOUNT}"
     echo -e "cd /strings/string[@id=\"AppName\"]\nset ${APP_NAME} ${SYSTEM}.${BRANCH}.${GITCOUNT}\nsave" | xmllint --shell ${APP_FILE} | grep -v ">"
