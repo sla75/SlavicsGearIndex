@@ -109,13 +109,14 @@ done
 
 echo -e "########################################\n"
 
-if [[ ${SYSTEM} == "Test" ]]; then
+#if [[ ${SYSTEM} == "Test" ]]; then
     echo "RESTORE Application@id=${APP_ID} in manifest.xml and ${APP_FILE}"
     git restore --staged manifest.xml ${APP_FILE}
     git restore manifest.xml ${APP_FILE}
-fi
+#fi
 
-
+grep AppName ${APP_FILE}
+grep version ${APP_FILE}
 
 
 
